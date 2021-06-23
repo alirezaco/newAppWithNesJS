@@ -3,71 +3,56 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { v1 as uuid } from 'uuid';
-import { ITask, Task, TaskStatus } from './task.model';
+import { TaskDTO, TaskStatus } from './task.model';
 import { isIn } from 'class-validator';
+import { TaskRepository } from 'src/model/task.repository';
+import { Task } from 'src/model/task.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class TaskService {
-  private tasks: ITask[] = [];
+  constructor(
+    @InjectRepository(TaskRepository)
+    private TaskRepo: TaskRepository,
+  ) {}
 
-  getAll(): ITask[] {
-    return this.tasks;
+  async getAll(): Promise<Task[]> {
+    return await this.TaskRepo.find();
   }
 
-  getById(id: string): ITask {
-    const found = this.tasks.find((task) => task.id === id);
+  async getById(id: string): Promise<Task> {
+    const found = await this.TaskRepo.findOne(id);
 
     if (!found) throw new NotFoundException(`task with ${id} not found`);
 
     return found;
   }
 
-  create(newTask: Task): { message: string; task?: ITask } {
-    const { title, description } = newTask;
-
-    const task: ITask = {
-      title,
-      description,
-      id: uuid(),
-      status: TaskStatus.Open,
-    };
-
-    this.tasks.push(task);
+  async create(newTask: TaskDTO): Promise<{ message: string; task?: Task }> {
+    const task = await this.TaskRepo.createAndSave(newTask);
 
     return { message: 'Created new Task!', task: task };
   }
 
-  removeTask(id: string): { message: string } {
-    this.getById(id);
+  async removeTask(id: string): Promise<{ message: string }> {
+    await this.getById(id);
 
-    this.tasks.splice(
-      this.tasks.findIndex((task) => id === task.id),
-      1,
-    );
+    await this.TaskRepo.delete(id);
 
     return { message: 'Removed' };
   }
 
-  update(id: string, newTAsk: Task): { message: string; task: ITask } {
-    const { title, description } = newTAsk;
+  async update(
+    id: string,
+    newTAsk: TaskDTO,
+  ): Promise<{ message: string; task: Task }> {
+    const task = await this.TaskRepo.update(id, newTAsk);
 
-    const oldTask: ITask = this.getById(id);
-
-    oldTask.title = title ? title : oldTask.title;
-    oldTask.description = description ? description : oldTask.description;
-
-    this.tasks.splice(
-      this.tasks.findIndex((task) => task.id === id),
-      1,
-      oldTask,
-    );
-
-    return { message: 'updated', task: oldTask };
+    return { message: 'updated', task };
   }
 
-  UpdateStatus(id: string, newStatus: TaskStatus) {
-    const oldTask = this.getById(id);
+  async UpdateStatus(id: string, newStatus: TaskStatus) {
+    await this.getById(id);
 
     if (
       !isIn(newStatus, [
@@ -76,16 +61,10 @@ export class TaskService {
         TaskStatus.Processing,
       ])
     )
-      throw new BadRequestException();
+      throw new BadRequestException('status incorrect!');
 
-    oldTask.status = newStatus;
+    const task = await this.TaskRepo.update(id, { status: newStatus });
 
-    this.tasks.splice(
-      this.tasks.findIndex((task) => task.id === id),
-      1,
-      oldTask,
-    );
-
-    return { message: 'status updated', task: oldTask };
+    return { message: 'status updated', task };
   }
 }

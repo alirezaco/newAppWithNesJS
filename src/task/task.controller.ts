@@ -10,7 +10,7 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { ITask, Task, TaskStatus } from './task.model';
+import { TaskDTO, TaskStatus } from './task.model';
 import { TaskService } from './task.service';
 
 @Controller('task')
@@ -18,18 +18,18 @@ export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
   @Get()
-  getAll(): ITask[] {
+  getAll() {
     return this.taskService.getAll();
   }
 
   @Get(':id')
-  getById(@Param('id') id: string): ITask {
+  getById(@Param('id') id: string) {
     return this.taskService.getById(id);
   }
 
   @Post()
   @UsePipes(ValidationPipe)
-  create(@Body() task: Task) {
+  create(@Body() task: TaskDTO) {
     return this.taskService.create(task);
   }
 
@@ -40,7 +40,7 @@ export class TaskController {
 
   @Put(':id')
   @UsePipes(ValidationPipe)
-  update(@Param('id') id: string, @Body() task: Task) {
+  update(@Param('id') id: string, @Body() task: TaskDTO) {
     return this.taskService.update(id, task);
   }
 
