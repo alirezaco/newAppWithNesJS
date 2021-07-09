@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { TaskDTO, TaskStatus } from 'src/task/task.model';
+import { TaskDTO, TaskStatus } from '../task/task.model';
 import { EntityRepository, Repository } from 'typeorm';
 import { Task } from './task.entity';
 

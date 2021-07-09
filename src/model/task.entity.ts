@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { TaskStatus } from 'src/task/task.model';
+import { TaskStatus } from '../task/task.model';
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()

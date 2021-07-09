@@ -5,8 +5,8 @@ import {
 } from '@nestjs/common';
 import { TaskDTO, TaskStatus } from './task.model';
 import { isIn } from 'class-validator';
-import { TaskRepository } from 'src/model/task.repository';
-import { Task } from 'src/model/task.entity';
+import { TaskRepository } from '../model/task.repository';
+import { Task } from '../model/task.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
