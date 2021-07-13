@@ -15,7 +15,9 @@ export class User extends BaseEntity {
   @Column({ type: 'varchar', width: 255 })
   @MaxLength(40)
   @MinLength(8)
-  @Matches(/^(?=(.*[a-z | A-Z]){1,})(?=(.*[\d]){1,})(?!.*\s).{8,}/gm)
+  @Matches(/^(?=(.*[a-z | A-Z]){1,})(?=(.*[\d]){1,})(?!.*\s).{8,}/gm, {
+    message: 'password pattern incorrect',
+  })
   password: string;
 
   @Column({ type: 'varchar', width: 255 })

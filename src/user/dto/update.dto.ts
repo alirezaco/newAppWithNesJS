@@ -17,7 +17,9 @@ export class UpdateUserDto {
   @IsString()
   @MaxLength(40)
   @MinLength(8)
-  @Matches(/^(?=(.*[a-z | A-Z]){1,})(?=(.*[\d]){1,})(?!.*\s).{8,}/gm)
+  @Matches(/^(?=(.*[a-z | A-Z]){1,})(?=(.*[\d]){1,})(?!.*\s).{8,}/gm, {
+    message: 'password pattern incorrect',
+  })
   password: string;
 
   @IsString()
