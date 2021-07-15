@@ -14,7 +14,6 @@ export class TaskRepository extends Repository<Task> {
 
     return await task.save();
   }
-
   async update(
     id: string,
     newTask: { title?: string; description?: string; status?: TaskStatus },

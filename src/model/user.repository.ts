@@ -4,6 +4,7 @@ import { SignUpUserDto } from 'src/user/dto/signUp.dto';
 import { UpdateUserDto } from 'src/user/dto/update.dto';
 import { User } from './user.entity';
 import { ConflictException } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 
 @EntityRepository(User)
 export class UserRepository extends Repository<User> {
@@ -15,8 +16,9 @@ export class UserRepository extends Repository<User> {
 
     const user = new User();
 
+    user.salt = await bcrypt.genSalt();
     user.username = username;
-    user.password = password;
+    user.password = await this.hashingPassword(password, user.salt);
     user.fullName = fullName;
 
     await user.save();
@@ -32,6 +34,10 @@ export class UserRepository extends Repository<User> {
     user.fullName = fullName;
     user.age = age | 0;
 
-    return await user.save();
+    return user.save();
+  }
+
+  private hashingPassword(password, salt) {
+    return bcrypt.hash(password, salt);
   }
 }
