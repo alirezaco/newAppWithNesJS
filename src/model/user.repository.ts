@@ -3,8 +3,9 @@ import { EntityRepository, Repository } from 'typeorm';
 import { SignUpUserDto } from 'src/user/dto/signUp.dto';
 import { UpdateUserDto } from 'src/user/dto/update.dto';
 import { User } from './user.entity';
-import { ConflictException } from '@nestjs/common';
+import { ConflictException, BadRequestException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
+import { SingInUserDto } from 'src/auth/dto/signIn.dto';
 
 @EntityRepository(User)
 export class UserRepository extends Repository<User> {
@@ -16,9 +17,9 @@ export class UserRepository extends Repository<User> {
 
     const user = new User();
 
-    user.salt = await bcrypt.genSalt();
+    const salt = await bcrypt.genSalt();
     user.username = username;
-    user.password = await this.hashingPassword(password, user.salt);
+    user.password = await this.hashingPassword(password, salt);
     user.fullName = fullName;
 
     await user.save();
@@ -35,6 +36,15 @@ export class UserRepository extends Repository<User> {
     user.age = age | 0;
 
     return user.save();
+  }
+
+  async signInUser(userDto: SingInUserDto) {
+    const { username, password } = userDto;
+
+    const user = await this.findOne({ username });
+
+    if (user && (await bcrypt.compare(password, user.password))) return user;
+    else throw new BadRequestException();
   }
 
   private hashingPassword(password, salt) {

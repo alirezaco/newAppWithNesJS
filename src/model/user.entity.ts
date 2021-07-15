@@ -26,7 +26,4 @@ export class User extends BaseEntity {
 
   @Column({ type: 'int', default: 0 })
   age?: number;
-
-  @Column({ type: 'varchar', width: 255 })
-  salt: string;
 }
